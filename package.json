@@ -1,0 +1,9 @@
+{
+  "name": "learnvault-notebook-summarizer",
+  "version": "1.0.0",
+  "description": "LearnVault AI - Notebook Summarizer & Key Points Generator",
+  "scripts": {
+    "start:server": "cd server && npm start",
+    "start:client": "cd client && npm run dev"
+  }
+}
