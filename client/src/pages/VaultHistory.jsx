@@ -24,7 +24,7 @@ export default function VaultHistory({ onSelectNotebook }) {
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    if (!window.confirm('Delete this notebook summary from your vault?')) return;
+    if (!window.confirm('Delete this notebook from your vault?')) return;
 
     try {
       await api.delete(`/notebooks/${id}`);
@@ -43,9 +43,9 @@ export default function VaultHistory({ onSelectNotebook }) {
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: '800' }}>Summarized Notebook Vault</h2>
+          <h2 style={{ fontSize: '24px', fontWeight: '800' }}>Notebook Vault</h2>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Access all your past AI-summarized study notes and key points breakdown.
+            Access all your past study notes and key points breakdown.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function VaultHistory({ onSelectNotebook }) {
 
       {filtered.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--text-muted)' }}>
-          <p>No summarized notebooks found in your vault.</p>
+          <p>No notebooks found in your vault.</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

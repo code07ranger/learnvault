@@ -398,7 +398,7 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
                   ) : (
                     <>
                       <Sparkles size={18} />
-                      <span>Process with LearnVault AI</span>
+                      <span>Save Note & Key Points</span>
                     </>
                   )}
                 </button>

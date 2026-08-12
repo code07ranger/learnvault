@@ -86,15 +86,6 @@ export default function SidebarNav({ activeTab, setActiveTab }) {
         </button>
 
         <button
-          className={`sidebar-menu-item ${activeTab === 'ai-summary' ? 'active-neon' : ''}`}
-          onClick={() => setActiveTab('ai-summary')}
-          title="AI Summary"
-        >
-          <Sparkles size={20} style={{ flexShrink: 0, color: 'var(--neon-green)' }} />
-          {!isCompact && <span>AI Summary</span>}
-        </button>
-
-        <button
           className={`sidebar-menu-item ${activeTab === 'tasks' ? 'active-neon' : ''}`}
           onClick={() => setActiveTab('tasks')}
           title="Action Tasks"

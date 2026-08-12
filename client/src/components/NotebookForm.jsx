@@ -135,7 +135,7 @@ export default function NotebookForm({ onSummaryGenerated }) {
         </div>
         
         <p style={{ fontSize: '13.5px', color: 'var(--text-muted)' }}>
-          Paste raw study notes or upload a <strong>PDF / text document</strong> for instant AI key point extraction:
+          Paste raw study notes or upload a <strong>PDF / text document</strong> for key point extraction:
         </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '14px' }}>
@@ -167,10 +167,10 @@ export default function NotebookForm({ onSummaryGenerated }) {
           </div>
           <div>
             <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--neon-green)', marginBottom: '6px' }}>
-              AI Engine Processing Notebook...
+              Engine Processing Notebook...
             </h3>
             <p style={{ fontSize: '13.5px', color: 'var(--text-muted)' }}>
-              Synthesizing key points, executive overview, and study definitions.
+              Synthesizing key points and study definitions.
             </p>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function NotebookForm({ onSummaryGenerated }) {
             <textarea
               className="form-control"
               rows={14}
-              placeholder="Paste your raw study notes, lecture transcript, or upload a PDF document. OpenAI will structure and summarize the content into user-friendly key points!"
+              placeholder="Paste your raw study notes, lecture transcript, or upload a PDF document. Content will be structured into user-friendly key points!"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
@@ -231,7 +231,7 @@ export default function NotebookForm({ onSummaryGenerated }) {
             disabled={loading || uploadingPdf}
           >
             <Wand2 size={22} />
-            <span>Summarize Notebook into Key Points</span>
+            <span>Process Notebook into Key Points</span>
           </button>
         </form>
       )}

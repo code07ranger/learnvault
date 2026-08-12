@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import SidebarNav from './components/SidebarNav';
 import SummaryCard from './components/SummaryCard';
-import AISummaryCard from './components/AISummaryCard';
 import AddNoteDropdownModal from './components/AddNoteDropdownModal';
 import StatCardsRow from './components/StatCardsRow';
 import VaultHistory from './pages/VaultHistory';
 import api from './services/api';
-import { CheckSquare, Sparkles, BookOpen } from 'lucide-react';
+import { CheckSquare, BookOpen } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'notes' | 'ai-summary' | 'tasks'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'notes' | 'tasks'
   const [currentSummary, setCurrentSummary] = useState(null);
   const [notebooks, setNotebooks] = useState([]);
 
@@ -40,20 +39,6 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
-  const handleGoToAISummary = (notebook) => {
-    if (notebook) {
-      setCurrentSummary(notebook);
-    }
-    setActiveTab('ai-summary');
-  };
-
-  const handleAISummaryUpdated = (id, newSummary) => {
-    setNotebooks(prev => prev.map(n => n.id === id ? { ...n, ai_summary: newSummary } : n));
-    if (currentSummary && currentSummary.id === id) {
-      setCurrentSummary(prev => ({ ...prev, ai_summary: newSummary }));
-    }
-  };
-
   return (
     <div className="app-layout">
       {/* Left Sidebar Navigation */}
@@ -67,7 +52,7 @@ export default function App() {
             <div>
               <h1 className="workspace-title">LearnVault Dashboard</h1>
               <p className="workspace-subtitle">
-                Organize, extract, and review intelligent study summaries powered by AI.
+                Organize, extract, and review your study notes and key concepts.
               </p>
             </div>
             
@@ -80,19 +65,13 @@ export default function App() {
               <StatCardsRow notebooks={notebooks} />
 
               {currentSummary && (
-                <SummaryCard notebook={currentSummary} onGenerateAISummary={handleGoToAISummary} />
+                <SummaryCard notebook={currentSummary} />
               )}
             </div>
           )}
 
           {activeTab === 'notes' && (
             <VaultHistory onSelectNotebook={handleSelectFromHistory} />
-          )}
-
-          {activeTab === 'ai-summary' && (
-            <div style={{ maxWidth: '960px', margin: '0 auto' }}>
-              <AISummaryCard notebook={currentSummary} onSummaryUpdated={handleAISummaryUpdated} />
-            </div>
           )}
 
           {activeTab === 'tasks' && (
