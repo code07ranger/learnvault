@@ -1,13 +1,64 @@
-import React, { useState } from 'react';
-import { CheckCircle2, Copy, FileText, BookOpen, Clock, ListOrdered, BookMarked, Check, Printer } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  CheckCircle2, 
+  Copy, 
+  Clock, 
+  ListOrdered, 
+  BookMarked, 
+  Check, 
+  Printer,
+  Volume2,
+  VolumeX
+} from 'lucide-react';
 
 export default function SummaryCard({ notebook }) {
   const [copied, setCopied] = useState(false);
   const [checkedItems, setCheckedItems] = useState({});
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  useEffect(() => {
+    if (!notebook?.id) return;
+    try {
+      const saved = localStorage.getItem(`lv_checked_${notebook.id}`);
+      setCheckedItems(saved ? JSON.parse(saved) : {});
+    } catch {
+      setCheckedItems({});
+    }
+  }, [notebook?.id]);
+
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsPlayingAudio(false);
+    }
+  }, [notebook?.id]);
 
   if (!notebook) {
     return null;
   }
+
+  // Audio Read Aloud
+  const handleToggleAudio = () => {
+    if (!('speechSynthesis' in window)) {
+      alert('Text-to-Speech is not supported in your browser.');
+      return;
+    }
+
+    if (isPlayingAudio) {
+      window.speechSynthesis.cancel();
+      setIsPlayingAudio(false);
+    } else {
+      window.speechSynthesis.cancel();
+      const textToRead = `${notebook.title}. ${notebook.executive_summary || ''}. Key points: ` +
+        (notebook.key_points || []).map(kp => kp.replace(/\*\*/g, '')).join('. ');
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.rate = 1.0;
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
+      setIsPlayingAudio(true);
+    }
+  };
 
   const handleCopyAll = () => {
     const textToCopy = `Notebook: ${notebook.title}\nSubject: ${notebook.subject}\n\nKEY POINTS:\n` +
@@ -18,7 +69,6 @@ export default function SummaryCard({ notebook }) {
   };
 
   const handleExportPDF = () => {
-    // Generate clean, printable HTML document formatted specifically for PDF export
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       alert('Please allow popups to export PDF');
@@ -88,9 +138,6 @@ export default function SummaryCard({ notebook }) {
           ol {
             padding-left: 20px;
           }
-          @media print {
-            body { padding: 20px; }
-          }
         </style>
       </head>
       <body>
@@ -103,9 +150,7 @@ export default function SummaryCard({ notebook }) {
         </div>
 
         <h3>🎯 Key Points Breakdown</h3>
-        <ol>
-          ${keyPointsHtml}
-        </ol>
+        <ol>${keyPointsHtml}</ol>
 
         ${notebook.key_definitions && notebook.key_definitions.length > 0 ? `
           <h3>📖 Key Definitions</h3>
@@ -118,9 +163,7 @@ export default function SummaryCard({ notebook }) {
         ` : ''}
 
         <script>
-          window.onload = function() {
-            window.print();
-          };
+          window.onload = function() { window.print(); };
         </script>
       </body>
       </html>
@@ -131,11 +174,21 @@ export default function SummaryCard({ notebook }) {
   };
 
   const toggleCheck = (idx) => {
-    setCheckedItems(prev => ({ ...prev, [idx]: !prev[idx] }));
+    setCheckedItems(prev => {
+      const updated = { ...prev, [idx]: !prev[idx] };
+      if (notebook?.id) {
+        try {
+          localStorage.setItem(`lv_checked_${notebook.id}`, JSON.stringify(updated));
+        } catch (e) {
+          console.warn('Could not save checked items state:', e);
+        }
+      }
+      return updated;
+    });
   };
 
   return (
-    <div className="card" style={{ border: '1px solid var(--border-glow)' }}>
+    <div className="card" style={{ border: '1.5px solid rgba(0, 255, 135, 0.3)', position: 'relative' }}>
       {/* Toast Notification */}
       {copied && (
         <div className="toast-notification">
@@ -143,11 +196,11 @@ export default function SummaryCard({ notebook }) {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '22px' }}>
+      {/* Header Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--neon-green)', background: 'var(--neon-green-dim)', padding: '4px 12px', borderRadius: 'var(--radius-sm)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--neon-green)', background: 'var(--neon-green-dim)', padding: '4px 12px', borderRadius: 'var(--radius-sm)', textTransform: 'uppercase' }}>
               {notebook.subject}
             </span>
             <span style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -157,11 +210,18 @@ export default function SummaryCard({ notebook }) {
           <h2 style={{ fontSize: '24px', fontWeight: '800', lineHeight: '1.3' }}>{notebook.title}</h2>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Audio Read Aloud Control */}
+          <button className="btn btn-secondary" style={{ padding: '8px 14px', fontSize: '12px', color: isPlayingAudio ? '#00ff87' : 'inherit' }} onClick={handleToggleAudio}>
+            {isPlayingAudio ? <VolumeX size={14} style={{ color: '#00ff87' }} /> : <Volume2 size={14} />}
+            <span>{isPlayingAudio ? 'Stop Audio' : 'Listen'}</span>
+          </button>
+          
           <button className="btn btn-secondary" style={{ padding: '8px 14px', fontSize: '12px' }} onClick={handleCopyAll}>
             {copied ? <Check size={14} style={{ color: 'var(--neon-green)' }} /> : <Copy size={14} />}
             <span>{copied ? 'Copied' : 'Copy'}</span>
           </button>
+
           <button className="btn btn-secondary" style={{ padding: '8px 14px', fontSize: '12px' }} onClick={handleExportPDF}>
             <Printer size={14} />
             <span>Export PDF</span>
@@ -215,7 +275,7 @@ export default function SummaryCard({ notebook }) {
         </div>
       )}
 
-      {/* Recommended Study Action Items */}
+      {/* Interactive Study Action Items */}
       {notebook.action_takeaways && notebook.action_takeaways.length > 0 && (
         <div style={{ borderTop: '1px solid var(--border-muted)', paddingTop: '20px' }}>
           <h4 style={{ fontSize: '15px', fontWeight: '800', marginBottom: '12px', color: 'var(--text-main)' }}>
@@ -247,7 +307,6 @@ export default function SummaryCard({ notebook }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }

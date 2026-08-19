@@ -1,16 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import SidebarNav from './components/SidebarNav';
 import SummaryCard from './components/SummaryCard';
+import AISummaryCard from './components/AISummaryCard';
 import AddNoteDropdownModal from './components/AddNoteDropdownModal';
 import StatCardsRow from './components/StatCardsRow';
 import VaultHistory from './pages/VaultHistory';
 import api from './services/api';
-import { CheckSquare, BookOpen } from 'lucide-react';
+import { CheckSquare, BookOpen, Sun, Moon } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'notes' | 'tasks'
   const [currentSummary, setCurrentSummary] = useState(null);
   const [notebooks, setNotebooks] = useState([]);
+  
+  // Theme state ('dark' | 'light')
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('lv_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('lv_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const fetchVault = async () => {
     try {
@@ -39,6 +54,11 @@ export default function App() {
     setActiveTab('dashboard');
   };
 
+  const handleAISummaryUpdated = (noteId, aiSummary) => {
+    setCurrentSummary(prev => prev ? { ...prev, ai_summary: aiSummary } : prev);
+    fetchVault();
+  };
+
   return (
     <div className="app-layout">
       {/* Left Sidebar Navigation */}
@@ -47,7 +67,7 @@ export default function App() {
       {/* Main Workspace Area */}
       <div className="main-wrapper-sidebar">
         <main className="page-content-area">
-          {/* Header Action Bar with Dedicated Add New Note Button */}
+          {/* Header Action Bar with Dedicated Add New Note & Theme Toggle Buttons */}
           <div className="workspace-header-bar">
             <div>
               <h1 className="workspace-title">LearnVault Dashboard</h1>
@@ -56,7 +76,19 @@ export default function App() {
               </p>
             </div>
             
-            <AddNoteDropdownModal onSummaryGenerated={handleSummaryGenerated} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                className="btn btn-secondary"
+                onClick={toggleTheme}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', fontSize: '13px', fontWeight: 700 }}
+                title="Toggle Light / Dark Mode"
+              >
+                {theme === 'dark' ? <Sun size={16} style={{ color: '#f59e0b' }} /> : <Moon size={16} style={{ color: '#6366f1' }} />}
+                <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+              </button>
+
+              <AddNoteDropdownModal onSummaryGenerated={handleSummaryGenerated} />
+            </div>
           </div>
 
           {activeTab === 'dashboard' && (
@@ -65,8 +97,23 @@ export default function App() {
               <StatCardsRow notebooks={notebooks} />
 
               {currentSummary && (
-                <SummaryCard notebook={currentSummary} />
+                <>
+                  <SummaryCard notebook={currentSummary} />
+                  <AISummaryCard notebook={currentSummary} onSummaryUpdated={handleAISummaryUpdated} />
+                </>
               )}
+            </div>
+          )}
+
+          {activeTab === 'ai-summary' && (
+            <div style={{ maxWidth: '960px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 900, color: 'var(--neon-green)' }}>Dedicated AI Explanation & Summary</h2>
+                <p style={{ fontSize: '13.5px', color: 'var(--text-muted)' }}>
+                  Deep 4-section AI breakdown: Simple snapshot, core mechanics, practical value, and beginner intuition.
+                </p>
+              </div>
+              <AISummaryCard notebook={currentSummary} onSummaryUpdated={handleAISummaryUpdated} />
             </div>
           )}
 

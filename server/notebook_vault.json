@@ -1,3 +1,41 @@
 {
-  "notebooks": []
+  "notebooks": [
+    {
+      "id": "e313294f-ee82-4a34-81c1-be424c1c90c1",
+      "title": "CSE Technical and HR_Interview_Prep_Book.docx",
+      "subject": "General Learning",
+      "priority": "Medium Priority",
+      "source_type": "Course Note",
+      "raw_content": "PDF Study Document: CSE Technical and HR_Interview_Prep_Book.docx.pdf\nTopic: CSE Technical and HR_Interview_Prep_Book.docx",
+      "executive_summary": "PDF Study Document: CSE Technical and HR_Interview_Prep_Book.docx.pdf\nTopic: CSE Technical and HR_Interview_Prep_Book.docx",
+      "key_points": [
+        "**Primary Concept**: \"CSE Technical and HR_Interview_Prep_Book.docx\" forms a core building block in General Learning.",
+        "**Key Insight**: PDF Study Document: CSE Technical and HR_Interview_Prep_Book.docx.pdf\nTopic: CSE Technical and HR_Interview_Prep_Book.do",
+        "**Practical Application**: Regular testing on these key points solidifies long-term retention."
+      ],
+      "key_definitions": [
+        {
+          "term": "CSE Technical and HR_Interview_Prep_Book.docx Topic",
+          "definition": "Core subject matter covered in this study note."
+        },
+        {
+          "term": "Key Takeaway",
+          "definition": "Primary concept extracted from uploaded material."
+        }
+      ],
+      "action_takeaways": [
+        "Review key concepts extracted from CSE Technical and HR_Interview_Prep_Book.docx",
+        "Practice explaining main points in your own words",
+        "Test retention by creating quick flashcards"
+      ],
+      "read_time_minutes": 1,
+      "created_at": "2026-08-19T09:14:02.139Z",
+      "ai_summary": {
+        "simple_summary": "PDF Study Document: CSE Technical and HR_Interview_Prep_Book.docx.pdf Topic: CSE Technical and HR_Interview_Prep_Book.docx",
+        "main_about": "Key mechanisms and practical frameworks regarding General Learning.",
+        "why_it_matters": "Real-world application, exam utility, and mastery value of CSE Technical and HR_Interview_Prep_Book.docx.",
+        "beginner_explanation": "Analogy and beginner mental model for understanding CSE Technical and HR_Interview_Prep_Book.docx."
+      }
+    }
+  ]
 }

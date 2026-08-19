@@ -2,6 +2,19 @@ import React, { useState } from 'react';
 import { Sparkles, HelpCircle, Lightbulb, Compass, BookOpen, AlertCircle, RefreshCw } from 'lucide-react';
 import api from '../services/api';
 
+const cleanText = (txt) => {
+  if (!txt) return '';
+  return txt
+    .replace(/^(📌|🔍|💡|🧠)?\s*(Executive Snapshot:|Core Focus & Framework:|Practical Impact & Application:|Practical Impact & Relevance:|Beginner Intuition & Analogy:|Core Mechanics & Framework:)?\s*/gi, '')
+    .replace(/^#+\s+/gm, '')
+    .replace(/^[\s\-*#]+/gm, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
+    .replace(/---/g, '')
+    .trim();
+};
+
 export default function AISummaryCard({ notebook, onSummaryUpdated }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -84,7 +97,6 @@ export default function AISummaryCard({ notebook, onSummaryUpdated }) {
           <span>{error}</span>
         </div>
       )}
-
       {/* Structured AI Summary Output */}
       {displaySummary ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -94,7 +106,7 @@ export default function AISummaryCard({ notebook, onSummaryUpdated }) {
               <BookOpen size={16} /> 1. Simple Summary
             </h4>
             <p style={{ fontSize: '14.5px', lineHeight: '1.65', color: 'var(--text-main)' }}>
-              {displaySummary.simple_summary}
+              {cleanText(displaySummary.simple_summary)}
             </p>
           </div>
 
@@ -103,8 +115,8 @@ export default function AISummaryCard({ notebook, onSummaryUpdated }) {
             <h4 style={{ fontSize: '14px', fontWeight: 800, color: '#06b6d4', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <Compass size={16} /> 2. What This Note is Mainly About
             </h4>
-            <p style={{ fontSize: '14.5px', lineHeight: '1.65', color: 'var(--text-main)', whitespace: 'pre-line' }}>
-              {displaySummary.main_about}
+            <p style={{ fontSize: '14.5px', lineHeight: '1.65', color: 'var(--text-main)', whiteSpace: 'pre-line' }}>
+              {cleanText(displaySummary.main_about)}
             </p>
           </div>
 
@@ -114,7 +126,7 @@ export default function AISummaryCard({ notebook, onSummaryUpdated }) {
               <Lightbulb size={16} /> 3. Why This Matters
             </h4>
             <p style={{ fontSize: '14.5px', lineHeight: '1.65', color: 'var(--text-main)' }}>
-              {displaySummary.why_it_matters}
+              {cleanText(displaySummary.why_it_matters)}
             </p>
           </div>
 
@@ -124,7 +136,7 @@ export default function AISummaryCard({ notebook, onSummaryUpdated }) {
               <HelpCircle size={16} /> 4. Simple Explanation for a Beginner
             </h4>
             <p style={{ fontSize: '14.5px', lineHeight: '1.65', color: 'var(--text-main)', fontStyle: 'italic' }}>
-              "{displaySummary.beginner_explanation}"
+              "{cleanText(displaySummary.beginner_explanation)}"
             </p>
           </div>
         </div>

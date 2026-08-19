@@ -34,10 +34,15 @@ export default function VaultHistory({ onSelectNotebook }) {
     }
   };
 
-  const filtered = notebooks.filter(n =>
-    n.title.toLowerCase().includes(search.toLowerCase()) ||
-    n.subject.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = notebooks.filter(n => {
+    const q = search.toLowerCase();
+    return (
+      (n.title && n.title.toLowerCase().includes(q)) ||
+      (n.subject && n.subject.toLowerCase().includes(q)) ||
+      (n.raw_content && n.raw_content.toLowerCase().includes(q)) ||
+      (n.executive_summary && n.executive_summary.toLowerCase().includes(q))
+    );
+  });
 
   return (
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 0' }}>

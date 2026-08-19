@@ -86,19 +86,21 @@ router.post('/extract-pdf', upload.single('pdfFile'), async (req, res) => {
 // POST /api/summarize - Summarize a notebook
 router.post('/summarize', async (req, res) => {
   try {
-    const { title, subject, content } = req.body;
+    const { title, subject, content, priority, sourceType } = req.body;
 
     if (!content || content.trim().length === 0) {
       return res.status(400).json({ error: 'Notebook content cannot be empty' });
     }
 
-    // Call OpenAI API for structured key points summarization
+    // Call AI API for structured key points summarization
     const summaryData = await summarizeNotebook(title, subject, content);
 
     // Save to persistent vault
     const saved = saveNotebookSummary({
       title,
       subject,
+      priority,
+      sourceType,
       content,
       ...summaryData
     });

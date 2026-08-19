@@ -1,34 +1,23 @@
 import React, { useState, useRef } from 'react';
 import { 
   Plus, 
-  ChevronDown, 
-  Video, 
-  GraduationCap, 
-  Link, 
-  Upload, 
   X, 
-  FileText, 
   Download, 
-  ExternalLink, 
   Sparkles, 
   Loader2,
-  FileCheck,
-  CheckCircle2
+  FileCheck
 } from 'lucide-react';
 import api from '../services/api';
 
 export default function AddNoteDropdownModal({ onSummaryGenerated }) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState('Upload Document File'); // 'Workshop Note' | 'Course Note' | 'Web Link Note' | 'Upload Document File'
   
   // Modal Form State
   const [noteTitle, setNoteTitle] = useState('');
-  const [sourceType, setSourceType] = useState('Uploaded File');
+  const [sourceType, setSourceType] = useState('Course Note');
   const [priority, setPriority] = useState('Medium Priority');
   const [topicTag, setTopicTag] = useState('');
   const [rawContent, setRawContent] = useState('');
-  const [pdfLink, setPdfLink] = useState('');
   
   // File upload states
   const [selectedFile, setSelectedFile] = useState(null);
@@ -38,17 +27,9 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
 
   const fileInputRef = useRef(null);
 
-  const openModalWithType = (type) => {
-    setModalType(type);
-    setDropdownOpen(false);
+  const openModal = () => {
     setModalOpen(true);
     setError('');
-    
-    // Set appropriate source type
-    if (type === 'Workshop Note') setSourceType('Workshop Note');
-    else if (type === 'Course Note') setSourceType('Course Note');
-    else if (type === 'Web Link Note') setSourceType('Web Link');
-    else setSourceType('Course Note');
   };
 
   const closeModal = () => {
@@ -91,7 +72,6 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
         }
       } catch (err) {
         console.warn('PDF Upload Extraction Warning:', err);
-        // Seamless fallback so the user can still submit and process their PDF note!
         const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
         setRawContent(`PDF Study Document: ${file.name}\nTopic: ${fileNameWithoutExt}`);
       } finally {
@@ -131,35 +111,23 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
     }
   };
 
-  const handleOpenPdfLink = () => {
-    if (!pdfLink) return;
-    let formattedUrl = pdfLink.trim();
-    if (!/^https?:\/\//i.test(formattedUrl)) {
-      formattedUrl = 'https://' + formattedUrl;
-    }
-    window.open(formattedUrl, '_blank', 'noopener,noreferrer');
-  };
-
   const handleProcessSubmit = async (e) => {
     e.preventDefault();
-    if (!rawContent.trim() && !pdfLink.trim()) {
-      setError('Please upload a file, enter a PDF link, or provide note content.');
+    if (!rawContent.trim()) {
+      setError('Please choose a PDF / document file to upload before saving.');
       return;
     }
 
     setProcessing(true);
     setError('');
 
-    let combinedContent = rawContent.trim();
-    if (pdfLink.trim()) {
-      combinedContent = `[PDF Document Resource Link]: ${pdfLink.trim()}\n\n` + combinedContent;
-    }
-
     try {
       const res = await api.post('/summarize', {
         title: noteTitle.trim() || 'New Learning Note',
         subject: topicTag.trim() || 'General Learning',
-        content: combinedContent
+        priority: priority,
+        sourceType: sourceType,
+        content: rawContent.trim()
       });
 
       onSummaryGenerated(res.data.notebook);
@@ -168,7 +136,6 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
       setNoteTitle('');
       setTopicTag('');
       setRawContent('');
-      setPdfLink('');
       setSelectedFile(null);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to process note with LearnVault AI.');
@@ -179,40 +146,16 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      {/* 1. Dedicated Green Button matching Image 1 */}
+      {/* 1. Direct Add New Note Button */}
       <button 
         className="btn-add-new-note"
-        onClick={() => setDropdownOpen(!dropdownOpen)}
+        onClick={openModal}
       >
+        <Plus size={18} />
         <span>Add New Note</span>
-        <ChevronDown size={16} style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
       </button>
 
-      {/* 2. Dropdown Menu matching Image 1 */}
-      {dropdownOpen && (
-        <>
-          <div 
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 490 }} 
-            onClick={() => setDropdownOpen(false)} 
-          />
-          <div className="add-note-dropdown-menu">
-            <button className="dropdown-item" onClick={() => openModalWithType('Workshop Note')}>
-              <Video size={18} style={{ color: '#00ff87' }} />
-              <span>Workshop Note</span>
-            </button>
-            <button className="dropdown-item" onClick={() => openModalWithType('Course Note')}>
-              <GraduationCap size={18} style={{ color: '#06b6d4' }} />
-              <span>Course Note</span>
-            </button>
-            <button className="dropdown-item" onClick={() => openModalWithType('Web Link Note')}>
-              <Link size={18} style={{ color: '#f59e0b' }} />
-              <span>Web Link Note</span>
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* 3. Popup Modal matching Image 2 & 3 */}
+      {/* 2. Popup Modal Window */}
       {modalOpen && (
         <div className="modal-overlay">
           <div className="modal-container-card">
@@ -288,13 +231,7 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
                   style={{ display: 'none' }}
                 />
                 
-                <div className="folder-illustration-icon">
-                  <div className="folder-back" />
-                  <div className="folder-paper" />
-                  <div className="folder-front" />
-                </div>
-
-                <h4 className="upload-dropzone-title">Upload PDF</h4>
+                <h4 className="upload-dropzone-title">Upload Document</h4>
 
                 <button
                   type="button"
@@ -303,7 +240,7 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
                   disabled={uploading}
                 >
                   {uploading ? <Loader2 size={16} className="spin-slow" /> : <Plus size={16} />}
-                  <span>{uploading ? 'Extracting File...' : 'Add files'}</span>
+                  <span>{uploading ? 'Extracting File...' : 'Choose File'}</span>
                 </button>
               </div>
 
@@ -317,7 +254,7 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
                         {selectedFile.name}
                       </div>
                       <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for parsing
+                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Content extracted
                       </div>
                     </div>
                   </div>
@@ -334,53 +271,13 @@ export default function AddNoteDropdownModal({ onSummaryGenerated }) {
                 </div>
               )}
 
-              {/* Designated PDF Link Section */}
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label-modal" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>PDF / Resource Web Link (Designated Section)</span>
-                  {pdfLink && (
-                    <button
-                      type="button"
-                      onClick={handleOpenPdfLink}
-                      style={{ background: 'none', border: 'none', color: 'var(--neon-cyan)', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      <ExternalLink size={12} /> Test Link
-                    </button>
-                  )}
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="url"
-                    className="form-control-modal"
-                    placeholder="https://example.com/research-paper.pdf"
-                    value={pdfLink}
-                    onChange={(e) => setPdfLink(e.target.value)}
-                    style={{ paddingRight: '40px' }}
-                  />
-                  <Link size={16} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
-                </div>
-              </div>
-
-              {/* Raw Note Content / Transcript Textarea */}
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label-modal">Raw Note Content / Raw Transcript</label>
-                <textarea
-                  className="form-control-modal"
-                  rows={4}
-                  placeholder="Paste your workshop notes, course key points, or article content here..."
-                  value={rawContent}
-                  onChange={(e) => setRawContent(e.target.value)}
-                  style={{ resize: 'vertical', minHeight: '100px' }}
-                />
-              </div>
-
               {error && (
                 <div style={{ color: 'var(--accent-red)', fontSize: '13px', background: 'rgba(239,68,68,0.1)', border: '1px solid var(--accent-red)', padding: '10px 14px', borderRadius: '8px' }}>
                   {error}
                 </div>
               )}
 
-              {/* Footer Modal Actions matching Image 3 */}
+              {/* Footer Modal Actions */}
               <div className="modal-footer-actions">
                 <button type="button" className="btn-modal-cancel" onClick={closeModal}>
                   Cancel

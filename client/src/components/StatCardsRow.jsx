@@ -1,22 +1,76 @@
 import React from 'react';
-import { BookOpen, Flame, Tag, History } from 'lucide-react';
+import { BookOpen, Flame, Zap, Sparkles } from 'lucide-react';
 
 export default function StatCardsRow({ notebooks = [] }) {
-  // Calculate dynamic stats
+  // 1. Total Notes Count (Real)
   const totalNotes = notebooks.length;
   
-  // High Priority Notes count (assuming priority stored or notes count)
-  const highPriorityNotes = notebooks.filter(n => n.priority === 'High Priority' || n.subject?.toLowerCase().includes('high')).length;
+  // 2. High Priority Notes Count (Real)
+  const highPriorityNotes = notebooks.filter(n => 
+    n.priority === 'High Priority' || n.priority === 'high'
+  ).length;
 
-  // Unique topics/subjects this week
-  const topicsSet = new Set(notebooks.map(n => n.subject).filter(Boolean));
-  const topicsCount = topicsSet.size;
+  // 3. Real AI Study Time Tracked (Sum of actual note reading time from saved notes)
+  const totalReadMinutes = notebooks.reduce((sum, n) => {
+    const min = typeof n.read_time_minutes === 'number' ? n.read_time_minutes : 1;
+    return sum + min;
+  }, 0);
 
-  // Pending learning tasks count
-  const pendingTasksCount = notebooks.flatMap(n => n.action_takeaways || []).length;
+  const displayTimeSaved = totalNotes === 0 
+    ? '0.0 hrs' 
+    : totalReadMinutes < 60 
+      ? `${totalReadMinutes} mins` 
+      : `${(totalReadMinutes / 60).toFixed(1)} hrs`;
+
+  // 4. Real Active Study Streak (Calculated strictly from note upload dates YYYY-MM-DD)
+  const calculateStreak = () => {
+    if (notebooks.length === 0) return 0;
+
+    // Collect all unique local YYYY-MM-DD dates from notebooks
+    const uploadDates = new Set(
+      notebooks.map(n => {
+        const d = new Date(n.created_at || Date.now());
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      })
+    );
+
+    const today = new Date();
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    let checkDate = new Date(today);
+    let todayStr = formatDate(checkDate);
+
+    // If no upload today yet, check if yesterday had an upload to preserve ongoing streak
+    if (!uploadDates.has(todayStr)) {
+      checkDate.setDate(checkDate.getDate() - 1);
+      const yesterdayStr = formatDate(checkDate);
+      if (!uploadDates.has(yesterdayStr)) {
+        return 0; // Streak reset if no activity today or yesterday
+      }
+    }
+
+    // Count consecutive active days
+    let streakCount = 0;
+    while (uploadDates.has(formatDate(checkDate))) {
+      streakCount++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    return streakCount;
+  };
+
+  const streakDays = calculateStreak();
 
   return (
-    <div className="stat-cards-grid">
+    <div className="stat-cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
       {/* Card 1: Total Notes Saved */}
       <div className="stat-card stat-card-green">
         <div className="stat-icon-wrapper stat-icon-green">
@@ -39,25 +93,27 @@ export default function StatCardsRow({ notebooks = [] }) {
         </div>
       </div>
 
-      {/* Card 3: This Week's Topics */}
+      {/* Card 3: AI Time Saved */}
       <div className="stat-card stat-card-cyan">
         <div className="stat-icon-wrapper stat-icon-cyan">
-          <Tag size={22} />
+          <Zap size={22} />
         </div>
         <div className="stat-content">
-          <div className="stat-number">{topicsCount}</div>
-          <div className="stat-label">This Week's Topics</div>
+          <div className="stat-number">{displayTimeSaved}</div>
+          <div className="stat-label">AI Study Time Saved</div>
         </div>
       </div>
 
-      {/* Card 4: Pending Learning Tasks */}
+      {/* Card 4: Study Streak */}
       <div className="stat-card stat-card-purple">
         <div className="stat-icon-wrapper stat-icon-purple">
-          <History size={22} />
+          <Sparkles size={22} />
         </div>
         <div className="stat-content">
-          <div className="stat-number">{pendingTasksCount}</div>
-          <div className="stat-label">Pending Learning Tasks</div>
+          <div className="stat-number">
+            {streakDays > 0 ? `${streakDays}-Day 🔥` : '0-Day'}
+          </div>
+          <div className="stat-label">Active Study Streak</div>
         </div>
       </div>
     </div>

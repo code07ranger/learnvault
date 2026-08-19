@@ -34,12 +34,14 @@ export function saveNotebookSummary(notebook) {
     id: crypto.randomUUID(),
     title: notebook.title || 'Untitled Notebook',
     subject: notebook.subject || 'General Study',
+    priority: notebook.priority || notebook.priorityTag || 'Medium Priority',
+    source_type: notebook.source_type || notebook.sourceType || 'Course Note',
     raw_content: notebook.content,
     executive_summary: notebook.executive_summary,
     key_points: notebook.key_points || [],
     key_definitions: notebook.key_definitions || [],
     action_takeaways: notebook.action_takeaways || [],
-    read_time_minutes: Math.max(1, Math.ceil(notebook.content.split(/\s+/).length / 200)),
+    read_time_minutes: Math.max(1, Math.ceil((notebook.content || '').split(/\s+/).length / 200)),
     created_at: new Date().toISOString()
   };
 

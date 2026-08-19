@@ -50,50 +50,61 @@ export default function SidebarNav({ activeTab, setActiveTab }) {
     <aside
       ref={sidebarRef}
       className={`sidebar-nav ${isResizing ? 'is-dragging' : ''} ${isCompact ? 'is-compact-sidebar' : ''}`}
-      style={{ width: `${sidebarWidth}px` }}
+      style={{ width: `${sidebarWidth}px`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
     >
-      {/* 1. App Logo - Clicking it routes to Dashboard */}
-      <div className="sidebar-logo-container" onClick={() => setActiveTab('dashboard')} title="LearnVault AI">
-        <div className="sidebar-logo-icon">
-          <Brain size={24} />
-        </div>
-        {!isCompact && (
-          <div className="sidebar-logo-text">
-            <span>LearnVault</span>
-            <span className="sidebar-ai-badge">AI</span>
+      <div>
+        {/* 1. App Logo - Clicking it routes to Dashboard */}
+        <div className="sidebar-logo-container" onClick={() => setActiveTab('dashboard')} title="LearnVault AI">
+          <div className="sidebar-logo-icon">
+            <Brain size={24} />
           </div>
-        )}
+          {!isCompact && (
+            <div className="sidebar-logo-text">
+              <span>LearnVault</span>
+              <span className="sidebar-ai-badge">AI</span>
+            </div>
+          )}
+        </div>
+
+        {/* 2. Menu Items */}
+        <nav className="sidebar-menu" style={{ marginTop: '12px' }}>
+          <button
+            className={`sidebar-menu-item ${activeTab === 'dashboard' ? 'active-neon' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+            title="Dashboard"
+          >
+            <PieChart size={20} style={{ flexShrink: 0 }} />
+            {!isCompact && <span>Dashboard</span>}
+          </button>
+
+          <button
+            className={`sidebar-menu-item ${activeTab === 'ai-summary' ? 'active-neon' : ''}`}
+            onClick={() => setActiveTab('ai-summary')}
+            title="AI Summary"
+          >
+            <Sparkles size={20} style={{ flexShrink: 0, color: 'var(--neon-green)' }} />
+            {!isCompact && <span>AI Summary</span>}
+          </button>
+
+          <button
+            className={`sidebar-menu-item ${activeTab === 'notes' ? 'active-neon' : ''}`}
+            onClick={() => setActiveTab('notes')}
+            title="Notes & Library"
+          >
+            <BookOpen size={20} style={{ flexShrink: 0 }} />
+            {!isCompact && <span>Notes & Library</span>}
+          </button>
+
+          <button
+            className={`sidebar-menu-item ${activeTab === 'tasks' ? 'active-neon' : ''}`}
+            onClick={() => setActiveTab('tasks')}
+            title="Action Tasks"
+          >
+            <ListTodo size={20} style={{ flexShrink: 0 }} />
+            {!isCompact && <span>Action Tasks</span>}
+          </button>
+        </nav>
       </div>
-
-      {/* 2. Menu Items */}
-      <nav className="sidebar-menu" style={{ marginTop: '12px' }}>
-        <button
-          className={`sidebar-menu-item ${activeTab === 'dashboard' ? 'active-neon' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
-          title="Dashboard"
-        >
-          <PieChart size={20} style={{ flexShrink: 0 }} />
-          {!isCompact && <span>Dashboard</span>}
-        </button>
-
-        <button
-          className={`sidebar-menu-item ${activeTab === 'notes' ? 'active-neon' : ''}`}
-          onClick={() => setActiveTab('notes')}
-          title="Notes & Library"
-        >
-          <BookOpen size={20} style={{ flexShrink: 0 }} />
-          {!isCompact && <span>Notes & Library</span>}
-        </button>
-
-        <button
-          className={`sidebar-menu-item ${activeTab === 'tasks' ? 'active-neon' : ''}`}
-          onClick={() => setActiveTab('tasks')}
-          title="Action Tasks"
-        >
-          <ListTodo size={20} style={{ flexShrink: 0 }} />
-          {!isCompact && <span>Action Tasks</span>}
-        </button>
-      </nav>
 
       {/* 3. Drag-to-Resize Right Border Handle */}
       <div
